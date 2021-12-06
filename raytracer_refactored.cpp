@@ -1,15 +1,12 @@
-//Original code was found here https://github.com/MarcusMathiassen/BasicRaytracer30min
-//We added all comments explaining the code, as well as making the scene bigger and more complex.
-
 /**
  * @file raytracer_refactored.cpp
  * @author Adam Kenney, Jaden Stith... Credits to original code above
- * @brief Refactored so we can use it with parallel. 
+ * @brief Refactored so we can use it with parallel.
  * @version 0.1
  * @date 2021-12-01
- * 
- * 
- * 
+ *
+ *
+ *
  */
 #include <fstream>
 #include <cmath>
@@ -65,16 +62,16 @@ struct Sphere {
     const Vec3 oc = o - c;
     const double b = 2 * dot(oc, d);
     const double c = dot(oc, oc) - r*r;
-    double disc = b*b - 4 * c; 
-    if (disc < 1e-4) return false; 
-    if (disc == 0){         
+    double disc = b*b - 4 * c;
+    if (disc < 1e-4) return false;
+    if (disc == 0){
       t = -b;
       return true;
-    }else{                              
+    }else{
       disc = sqrt(disc);
       const double t0 = -b - disc;
       const double t1 = -b + disc;
-      t = (t0 < t1) ? t0 : t1;    
+      t = (t0 < t1) ? t0 : t1;
       return true;
     }
   }
@@ -88,21 +85,21 @@ void clamp255(Vec3& col) {
 
 int main() {
 
-  const int H = 800;    
-  const int W = 800; 
-  Vec3 *pixelBoard[W][H];  
+  const int H = 800;
+  const int W = 800;
+  Vec3 pixelBoard[W][H];
 
-  const Vec3 white(255, 255, 255);    
-  const Vec3 black(0, 0, 0);          
-  const Vec3 blue(50, 160, 240);      
-  const Vec3 purple(210, 50, 235);    
-  const Vec3 green(0, 255, 0);        
+  const Vec3 white(255, 255, 255);
+  const Vec3 black(0, 0, 0);
+  const Vec3 blue(50, 160, 240);
+  const Vec3 purple(210, 50, 235);
+  const Vec3 green(0, 255, 0);
 
-  const Sphere sphere1(Vec3(W*0.5, H*0.5, 50), 50, blue);  
-  const Sphere sphere2(Vec3(W*.25, H*.25, 30), 60, purple); 
+  const Sphere sphere1(Vec3(W*0.5, H*0.5, 50), 50, blue);
+  const Sphere sphere2(Vec3(W*.25, H*.25, 30), 60, purple);
   const Sphere sphere3(Vec3(W*.75, H*.75, 20), 20, green);
-  const Sphere light(Vec3(W*0.5, 0, 50), 1, white);             
-  Sphere objects[] = {sphere1, sphere2, sphere3};             
+  const Sphere light(Vec3(W*0.5, 0, 50), 1, white);
+  Sphere objects[] = {sphere1, sphere2, sphere3};
 
   double t;
   Vec3 pix_col(black);
@@ -116,31 +113,31 @@ int main() {
 
       for(Sphere s : objects){
         if (s.intersect(ray, t)) {
-          const Vec3 pi = ray.o + ray.d*t;        
-          const Vec3 L = light.c - pi;           
-          const Vec3 N = s.getNormal(pi);         
+          const Vec3 pi = ray.o + ray.d*t;
+          const Vec3 L = light.c - pi;
+          const Vec3 N = s.getNormal(pi);
           const double dt = dot(L.normalize(), N.normalize());
 
-          pix_col = (s.col + white*dt) * 0.5; 
+          pix_col = (s.col + white*dt) * 0.5;
           clamp255(pix_col);
         }
       }
       Vec3 pix = Vec3(pix_col.x, pix_col.y, pix_col.z);
-      pixelBoard[x][y] = &pix;
+      pixelBoard[x][y] = pix;
     }
   }
   timestamp_t t1 = get_timestamp();
   std::cout << (t1-t0) / 1000000.0L << std::endl;
-  
+
 
   std::ofstream out("out.ppm");
   out << "P3\n" << W << ' ' << H << ' ' << "255\n";
-  for(int y = 0; y < W; y++){
-      for(int x = 0; x < H; x++){
-          out << (int)pixelBoard[x][y]->x << ' '
-              << (int)pixelBoard[x][y]->y << ' '
-              << (int)pixelBoard[x][y]->z << '\n';
+  for(int y = 0; y < W; ++y){
+      for(int x = 0; x < H; ++x){
+          out << (int)pixelBoard[x][y].x << ' '
+              << (int)pixelBoard[x][y].y << ' '
+              << (int)pixelBoard[x][y].z << '\n';
       }
   }
-  
+
 }
