@@ -1,6 +1,6 @@
 /**
  * @file raytracer_refactored.cpp
- * @author Adam Kenney, Jaden Stith... Credits to original code above
+ * @author Adam Kenney, Jaden Stith
  * @brief Parallel using openmp.
  * @version 0.1
  * @date 2021-12-01
