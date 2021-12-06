@@ -1,7 +1,7 @@
 /**
  * @file raytracer_refactored.cpp
  * @author Adam Kenney, Jaden Stith... Credits to original code above
- * @brief Refactored so we can use it with parallel.
+ * @brief Parallel using openmp.
  * @version 0.1
  * @date 2021-12-01
  *
@@ -11,6 +11,7 @@
 #include <fstream>
 #include <cmath>
 #include <iostream>
+#include <omp.h>
 #include <sys/time.h>
 
 typedef unsigned long long timestamp_t;
@@ -105,8 +106,12 @@ int main() {
   Vec3 pix_col(black);
 
   timestamp_t t0 = get_timestamp();
+
+  int x;
+
+  #pragma omp parallel for schedule(static) private(x, pix_col) shared(objects, pixelBoard)
   for (int y = 0; y < H; ++y) {
-    for (int x = 0; x < W; ++x) {
+    for (x = 0; x < W; ++x) {
       pix_col = black;
 
       const Ray ray(Vec3(x,y,0),Vec3(0,0,1));
@@ -122,8 +127,9 @@ int main() {
           clamp255(pix_col);
         }
       }
-      Vec3 pix = Vec3(pix_col.x, pix_col.y, pix_col.z);
-      pixelBoard[x][y] = pix;
+
+      pixelBoard[x][y] = Vec3(pix_col.x, pix_col.y, pix_col.z);
+
     }
   }
   timestamp_t t1 = get_timestamp();
